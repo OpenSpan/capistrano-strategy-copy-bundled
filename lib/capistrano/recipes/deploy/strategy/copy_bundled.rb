@@ -65,6 +65,8 @@ module Capistrano
 
             logger.info "packaging gems for bundler in #{destination}..."
             run_locally "cd #{destination} && #{bundle_cmd} package --all"
+
+            clear_installed_gems!
           end
         end
 
@@ -74,6 +76,11 @@ module Capistrano
             logger.info "linking gem cache ($GEM_HOME/cache) to local cache : #{destination}/vendor/bundle/ruby/2.0.0/cache..."
             run_locally "mkdir -p #{destination}/vendor/bundle/ruby/2.0.0 && rm -rf #{destination}/vendor/bundle/ruby/2.0.0/cache && ln -s $GEM_HOME/cache #{destination}/vendor/bundle/ruby/2.0.0/cache"
           end
+        end
+
+        def clear_installed_gems!
+          logger.info "removing installed gems in #{destination}/vendor/bundle"
+          run_locally "rm -rf #{destination}/vendor/bundle"
         end
       end
 
