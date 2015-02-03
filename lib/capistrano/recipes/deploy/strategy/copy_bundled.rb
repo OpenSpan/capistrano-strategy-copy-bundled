@@ -73,8 +73,8 @@ module Capistrano
         def link_cached_gems!
           link_gem_cache  = configuration.fetch(:link_gem_cache, false)
           if link_gem_cache
-            logger.info "linking gem cache ($GEM_HOME/cache) to local cache : #{destination}/vendor/bundle/ruby/2.0.0/cache..."
-            run_locally "mkdir -p #{destination}/vendor/bundle/ruby/2.0.0 && rm -rf #{destination}/vendor/bundle/ruby/2.0.0/cache && ln -s $GEM_HOME/cache #{destination}/vendor/bundle/ruby/2.0.0/cache"
+            logger.info "linking gem cache ($GEM_HOME/cache) to local cache : #{destination}/vendor/bundle/ruby/#{RUBY_VERSION}/cache..."
+            run_locally "mkdir -p #{destination}/vendor/bundle/ruby/#{RUBY_VERSION} && rm -rf #{destination}/vendor/bundle/ruby/#{RUBY_VERSION}/cache && ln -s $GEM_HOME/cache #{destination}/vendor/bundle/ruby/#{RUBY_VERSION}/cache"
           end
         end
 
