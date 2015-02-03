@@ -50,7 +50,7 @@ module Capistrano
           bundle_gemfile  = configuration.fetch(:local_bundle_gemfile, 'Gemfile')
           bundle_dir      = configuration.fetch(:local_bundle_dir, 'vendor/bundle')
           bundle_flags    = configuration.fetch(:local_bundle_flags, '--deployment --quiet')
-          bundle_without = [*configuration.fetch(:local_bundle_without, [:development, :test])].compact
+          bundle_without  = [*configuration.fetch(:local_bundle_without, [:development, :test])].compact
 
           args = ["--gemfile #{File.join(destination, bundle_gemfile)}"]
           args << "--path #{bundle_dir}" unless bundle_dir.to_s.empty?
@@ -58,11 +58,21 @@ module Capistrano
           args << "--without #{bundle_without.join(" ")}" unless bundle_without.empty?
 
           Bundler.with_clean_env do
+            link_cached_gems!
+
             logger.info "installing gems to local cache : #{destination}..."
             run_locally "cd #{destination} && #{bundle_cmd} install #{args.join(' ').strip}"
 
             logger.info "packaging gems for bundler in #{destination}..."
             run_locally "cd #{destination} && #{bundle_cmd} package --all"
+          end
+        end
+
+        def link_cached_gems!
+          link_gem_cache  = configuration.fetch(:link_gem_cache, false)
+          if link_gem_cache
+            logger.info "linking gem cache ($GEM_HOME/cache) to local cache : #{destination}/vendor/bundle/ruby/2.0.0/cache..."
+            run_locally "mkdir -p #{destination}/vendor/bundle/ruby/2.0.0/cache && ln -s $GEM_HOME/cache #{destination}/vendor/bundle/ruby/2.0.0/cache"
           end
         end
       end
