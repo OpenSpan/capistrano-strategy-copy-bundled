@@ -58,10 +58,20 @@ module Capistrano
           args << "--without #{bundle_without.join(" ")}" unless bundle_without.empty?
 
           Bundler.with_clean_env do
-            link_cached_gems!
+            link_gem_cache  = configuration.fetch(:link_gem_cache, false)
 
-            logger.info "installing gems to local cache : #{destination}..."
-            run_locally "cd #{destination} && #{bundle_cmd} install #{args.join(' ').strip}"
+            if link_gem_cache
+              link_cached_gems!
+            end
+
+            skip = fetch(:skip_local_bundle_install, false)
+
+            if skip && link_gem_cache
+              logger.info "skipping install of gems, as cache linked and gems already cached"
+            else
+              logger.info "installing gems to local cache : #{destination}..."
+              run_locally "cd #{destination} && #{bundle_cmd} install #{args.join(' ').strip}"
+            end
 
             logger.info "packaging gems for bundler in #{destination}..."
             run_locally "cd #{destination} && #{bundle_cmd} package --all"
@@ -71,11 +81,8 @@ module Capistrano
         end
 
         def link_cached_gems!
-          link_gem_cache  = configuration.fetch(:link_gem_cache, false)
-          if link_gem_cache
-            logger.info "linking gem cache ($GEM_HOME/cache) to local cache : #{destination}/vendor/bundle/ruby/#{RUBY_VERSION}/cache..."
-            run_locally "mkdir -p #{destination}/vendor/bundle/ruby/#{RUBY_VERSION} && rm -rf #{destination}/vendor/bundle/ruby/#{RUBY_VERSION}/cache && ln -s $GEM_HOME/cache #{destination}/vendor/bundle/ruby/#{RUBY_VERSION}/cache"
-          end
+          logger.info "linking gem cache ($GEM_HOME/cache) to local cache : #{destination}/vendor/bundle/ruby/#{RUBY_VERSION}/cache..."
+          run_locally "mkdir -p #{destination}/vendor/bundle/ruby/#{RUBY_VERSION} && rm -rf #{destination}/vendor/bundle/ruby/#{RUBY_VERSION}/cache && ln -s $GEM_HOME/cache #{destination}/vendor/bundle/ruby/#{RUBY_VERSION}/cache"
         end
 
         def clear_installed_gems!
