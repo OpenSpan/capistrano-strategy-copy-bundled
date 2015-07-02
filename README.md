@@ -54,5 +54,14 @@ on 'strategy:before:distribute',  'some:custom:task'
 on 'strategy:after:distribute',   'some:custom:task'
 ```
 
+If you want to load some default tasks and hooks add to your `config/deploy.rb`:
+
+```ruby
+require 'capistrano/strategy-copy-bundled-helpers'
+```
+
+This will backup the gems of the current release before deploying the new one so that the local gems can be reused during rollback.
+Otherwise rollback may result in the previous release being broken due to bundled private gems being missing.
+
 Copyright &copy; 2011-2012 Rudolf Schmidt. Released under the MIT license.
 
