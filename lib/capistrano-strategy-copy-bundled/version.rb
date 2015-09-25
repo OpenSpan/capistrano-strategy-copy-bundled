@@ -1,3 +1,3 @@
 module CapistranoStrategyCopyBundled
-  VERSION = '0.7.0-os1'
+  VERSION = '0.7.1'
 end
